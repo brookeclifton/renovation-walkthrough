@@ -1,6 +1,6 @@
 // Mirror surface that reflects the baked room cubemap with box projection, so reflections line up
 // with the room's walls. Cheap enough for Quest and single-pass stereo safe.
-Shader "MomsBathroom/BoxProjectedMirror"
+Shader "ClientBathroom/BoxProjectedMirror"
 {
     Properties
     {

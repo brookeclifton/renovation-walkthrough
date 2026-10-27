@@ -1,17 +1,17 @@
 // Renders review stills of the bathroom from eye height (and a plan view) to Builds/Snapshots.
-// CLI: Unity -batchmode -quit -projectPath <proj> -executeMethod MomsBathroom.EditorTools.BathroomSnapshots.Render
+// CLI: Unity -batchmode -quit -projectPath <proj> -executeMethod ClientBathroom.EditorTools.BathroomSnapshots.Render
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace MomsBathroom.EditorTools
+namespace ClientBathroom.EditorTools
 {
     public static class BathroomSnapshots
     {
         const float Eye = 64f;
 
-        [MenuItem("Tools/Moms Bathroom/Render Review Snapshots")]
+        [MenuItem("Tools/Client Bathroom/Render Review Snapshots")]
         public static void Render()
         {
             EditorSceneManager.OpenScene(BathroomXRSetup.ScenePath);

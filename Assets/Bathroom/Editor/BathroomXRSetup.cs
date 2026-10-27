@@ -3,8 +3,8 @@
 // to the walkable floors and assign them to the Teleport Interactables, and switch controller movement
 // from Slide to Teleport. Then bakes lighting and builds the Quest APK.
 //
-// CLI: Unity -batchmode -projectPath <proj> -buildTarget Android -executeMethod MomsBathroom.EditorTools.BathroomXRSetup.BuildSceneFromCommandLine
-//      Unity -batchmode -quit -projectPath <proj> -buildTarget Android -executeMethod MomsBathroom.EditorTools.BathroomXRSetup.BuildApk
+// CLI: Unity -batchmode -projectPath <proj> -buildTarget Android -executeMethod ClientBathroom.EditorTools.BathroomXRSetup.BuildSceneFromCommandLine
+//      Unity -batchmode -quit -projectPath <proj> -buildTarget Android -executeMethod ClientBathroom.EditorTools.BathroomXRSetup.BuildApk
 using System;
 using System.Collections;
 using System.Linq;
@@ -15,18 +15,18 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace MomsBathroom.EditorTools
+namespace ClientBathroom.EditorTools
 {
     public static class BathroomXRSetup
     {
-        public const string ScenePath = "Assets/Scenes/MomsBathroom.unity";
+        public const string ScenePath = "Assets/Scenes/ClientBathroom.unity";
         const string CameraRigBlock = "e47682b9-c270-40b1-b16d-90b627a5ce1b";
         const string TeleportBlock = "85906e61-05be-4ea9-bfa6-139215b858df";
         static readonly Vector3 SpawnInches = new(82f, 0f, 18f);   // just inside the door, facing north
 
         static bool _exitWhenDone;
 
-        [MenuItem("Tools/Moms Bathroom/Build Scene (room + XR rig + lighting)")]
+        [MenuItem("Tools/Client Bathroom/Build Scene (room + XR rig + lighting)")]
         public static void BuildSceneMenu() => _ = BuildScene();
 
         public static void BuildSceneFromCommandLine()
@@ -73,12 +73,12 @@ namespace MomsBathroom.EditorTools
                 EditorSceneManager.SaveScene(scene, ScenePath);
                 AddSceneToBuild();
                 AssetDatabase.SaveAssets();
-                Debug.Log("[MomsBathroom] Scene built: " + ScenePath);
+                Debug.Log("[ClientBathroom] Scene built: " + ScenePath);
                 if (_exitWhenDone) EditorApplication.Exit(0);
             }
             catch (Exception e)
             {
-                Debug.LogError("[MomsBathroom] Scene build failed: " + e);
+                Debug.LogError("[ClientBathroom] Scene build failed: " + e);
                 if (_exitWhenDone) EditorApplication.Exit(1);
             }
         }
@@ -119,7 +119,7 @@ namespace MomsBathroom.EditorTools
                 null, new[] { typeof(GameObject) }, null);
             var task = (Task)install.Invoke(block, new object[] { null });
             await task;
-            Debug.Log($"[MomsBathroom] Installed building block: {blockName}");
+            Debug.Log($"[ClientBathroom] Installed building block: {blockName}");
         }
 
         static void ConfigureTeleportAndLocomotion()
@@ -145,7 +145,7 @@ namespace MomsBathroom.EditorTools
                 so.FindProperty("_surface").objectReferenceValue = surface;
                 so.ApplyModifiedPropertiesWithoutUndo();
                 interactables[i].gameObject.name = $"[BuildingBlock] Teleport Interactable ({floor.name})";
-                Debug.Log($"[MomsBathroom] {interactables[i].gameObject.name}: Allow Teleport on, Surface = {floor.name}");
+                Debug.Log($"[ClientBathroom] {interactables[i].gameObject.name}: Allow Teleport on, Surface = {floor.name}");
             }
 
             // Locomotor > LocomotionSettings: Controller Movement Slide -> Teleport
@@ -156,7 +156,7 @@ namespace MomsBathroom.EditorTools
                 var p = so.FindProperty("_controllerMovement._value");
                 p.enumValueIndex = Array.IndexOf(p.enumNames, "Teleport");
                 so.ApplyModifiedPropertiesWithoutUndo();
-                Debug.Log("[MomsBathroom] Controller Movement set to Teleport");
+                Debug.Log("[ClientBathroom] Controller Movement set to Teleport");
             }
         }
 
@@ -191,9 +191,9 @@ namespace MomsBathroom.EditorTools
 
         static void BakeLighting()
         {
-            const string path = "Assets/Bathroom/MomsBathroomLighting.lighting";
+            const string path = "Assets/Bathroom/ClientBathroomLighting.lighting";
             var ls = AssetDatabase.LoadAssetAtPath<LightingSettings>(path);
-            if (ls == null) { ls = new LightingSettings { name = "MomsBathroomLighting" }; AssetDatabase.CreateAsset(ls, path); }
+            if (ls == null) { ls = new LightingSettings { name = "ClientBathroomLighting" }; AssetDatabase.CreateAsset(ls, path); }
             ls.bakedGI = true; ls.realtimeGI = false;
             ls.lightmapper = LightingSettings.Lightmapper.ProgressiveGPU;
             ls.lightmapResolution = 50; ls.lightmapPadding = 4; ls.lightmapMaxSize = 2048;
@@ -205,7 +205,7 @@ namespace MomsBathroom.EditorTools
             Lightmapping.lightingSettings = ls;
             var t = DateTime.Now;
             var ok = Lightmapping.Bake();
-            Debug.Log($"[MomsBathroom] Lightmap bake {(ok ? "succeeded" : "FAILED")} in {(DateTime.Now - t).TotalSeconds:F0}s");
+            Debug.Log($"[ClientBathroom] Lightmap bake {(ok ? "succeeded" : "FAILED")} in {(DateTime.Now - t).TotalSeconds:F0}s");
 
             // Feed the baked room cubemap to the box-projected mirrors
             var probe = UnityEngine.Object.FindAnyObjectByType<ReflectionProbe>();
@@ -220,25 +220,25 @@ namespace MomsBathroom.EditorTools
         static void AddSceneToBuild()
         {
             var scenes = EditorBuildSettings.scenes.Select(s => new EditorBuildSettingsScene(s.path, false))
-                .Where(s => s.path != ScenePath).ToList();
+                .Where(s => s.path != ScenePath && System.IO.File.Exists(s.path)).ToList();   // drop renamed/deleted scenes
             scenes.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
             EditorBuildSettings.scenes = scenes.ToArray();
         }
 
-        [MenuItem("Tools/Moms Bathroom/Build Quest APK")]
+        [MenuItem("Tools/Client Bathroom/Build Quest APK")]
         public static void BuildApk()
         {
             PlayerSettings.companyName = "Brooke Clifton";
-            PlayerSettings.productName = "Moms Bathroom";
-            PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android, "com.brookeclifton.momsbathroom");
+            PlayerSettings.productName = "Client Bathroom";
+            PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.Android, "com.brookeclifton.clientbathroom");
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
                 scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray(),
-                locationPathName = "Builds/MomsBathroom.apk",
+                locationPathName = "Builds/ClientBathroom.apk",
                 target = BuildTarget.Android,
                 options = BuildOptions.None,
             });
-            Debug.Log($"[MomsBathroom] APK build: {report.summary.result}, {report.summary.totalSize / (1024 * 1024)} MB, " +
+            Debug.Log($"[ClientBathroom] APK build: {report.summary.result}, {report.summary.totalSize / (1024 * 1024)} MB, " +
                       $"{report.summary.totalErrors} errors");
             if (Application.isBatchMode && report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
                 EditorApplication.Exit(1);

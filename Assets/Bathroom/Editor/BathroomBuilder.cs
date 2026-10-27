@@ -1,14 +1,14 @@
 // Builds the bathroom geometry from the client's drawings.
 // Coordinates are inches: x = east from the west wall, z = north from the south wall, y = up from the floor.
-// Menu: Tools > Moms Bathroom > Rebuild Room Geometry (keeps the XR rig in the scene)
+// Menu: Tools > Client Bathroom > Rebuild Room Geometry (keeps the XR rig in the scene)
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
-using static MomsBathroom.EditorTools.MeshKit;
+using static ClientBathroom.EditorTools.MeshKit;
 
-namespace MomsBathroom.EditorTools
+namespace ClientBathroom.EditorTools
 {
     public static class BathroomBuilder
     {
@@ -48,7 +48,7 @@ namespace MomsBathroom.EditorTools
         static Transform _parent;
         static readonly Dictionary<string, Material> Mats = new();
 
-        [MenuItem("Tools/Moms Bathroom/Rebuild Room Geometry")]
+        [MenuItem("Tools/Client Bathroom/Rebuild Room Geometry")]
         public static void BuildMenu() => Build();
 
         public static GameObject Build()
@@ -971,7 +971,7 @@ namespace MomsBathroom.EditorTools
         {
             const string path = MatDir + "/MirrorBox.mat";
             var m = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (m == null) { m = new Material(Shader.Find("MomsBathroom/BoxProjectedMirror")); AssetDatabase.CreateAsset(m, path); }
+            if (m == null) { m = new Material(Shader.Find("ClientBathroom/BoxProjectedMirror")); AssetDatabase.CreateAsset(m, path); }
             m.SetVector("_BoxMin", Vector4.zero);
             m.SetVector("_BoxMax", new Vector4(RoomX, Ceiling, RoomZ) * In);
             m.SetVector("_ProbePos", new Vector4(RoomX / 2, ProbeHeight, RoomZ / 2) * In);

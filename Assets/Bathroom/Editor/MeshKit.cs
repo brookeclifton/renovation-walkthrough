@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MomsBathroom.EditorTools
+namespace ClientBathroom.EditorTools
 {
     public class MeshKit
     {
