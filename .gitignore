@@ -1,0 +1,31 @@
+# Unity regenerated folders
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# Build output (APK, Gradle logs, review snapshots)
+/[Bb]uild/
+/[Bb]uilds/
+
+# IDE and OS files
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.user
+*.pidb
+*.booproj
+.DS_Store
+
+# Crash reports
+sysinfo.txt
+crashlytics-build.properties
+
+# Unity build temp
+/.utmp/
